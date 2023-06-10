@@ -1,42 +1,37 @@
-# this scripts installs necessary requirements and launches main program in webui.py
-import subprocess
-import os
-import sys
-import importlib.util
-import shlex
-import platform
-import json
-
-from modules import cmd_args
-from modules.paths_internal import script_path, extensions_dir
-
-commandline_args = os.environ.get('COMMANDLINE_ARGS', "")
-sys.argv += shlex.split(commandline_args)
-
-args, _ = cmd_args.parser.parse_known_args()
-
-python = sys.executable
-git = os.environ.get('GIT', "git")
-index_url = os.environ.get('INDEX_URL', "")
-stored_commit_hash = None
-skip_install = False
-dir_repos = "repositories"
-
-if 'GRADIO_ANALYTICS_ENABLED' not in os.environ:
-    os.environ['GRADIO_ANALYTICS_ENABLED'] = 'False'
+from modules import launch_utils
 
 
-def check_python_version():
-    is_windows = platform.system() == "Windows"
-    major = sys.version_info.major
-    minor = sys.version_info.minor
-    micro = sys.version_info.micro
+args = launch_utils.args
+python = launch_utils.python
+git = launch_utils.git
+index_url = launch_utils.index_url
+dir_repos = launch_utils.dir_repos
 
-    if is_windows:
-        supported_minors = [10]
-    else:
-        supported_minors = [7, 8, 9, 10, 11]
+commit_hash = launch_utils.commit_hash
+git_tag = launch_utils.git_tag
 
+run = launch_utils.run
+is_installed = launch_utils.is_installed
+repo_dir = launch_utils.repo_dir
+
+run_pip = launch_utils.run_pip
+check_run_python = launch_utils.check_run_python
+git_clone = launch_utils.git_clone
+git_pull_recursive = launch_utils.git_pull_recursive
+run_extension_installer = launch_utils.run_extension_installer
+prepare_environment = launch_utils.prepare_environment
+configure_for_tests = launch_utils.configure_for_tests
+start = launch_utils.start
+
+
+def main():
+    if not args.skip_prepare_environment:
+        prepare_environment()
+
+    if args.test_server:
+        configure_for_tests()
+
+<<<<<<< HEAD
     if not (major == 3 and minor in supported_minors):
         import modules.errors
 
@@ -349,8 +344,10 @@ def start():
         webui.api_only()
     else:
         webui.webui()
+=======
+    start()
+>>>>>>> master
 
 
 if __name__ == "__main__":
-    prepare_environment()
-    start()
+    main()
